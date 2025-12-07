@@ -1,8 +1,6 @@
-module github.com/loft-sh/devpod-provider-kubernetes
+module github.com/skevetter/devpod-provider-kubernetes
 
-go 1.22.0
-
-toolchain go1.22.6
+go 1.25.0
 
 require (
 	github.com/docker/cli v24.0.4+incompatible
@@ -10,6 +8,7 @@ require (
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/loft-sh/devpod v0.5.6-alpha.1.0.20240419140254-f1bc41f3be08
+	github.com/loft-sh/devpod-provider-kubernetes v0.1.19
 	github.com/loft-sh/log v0.0.0-20230802151259-7b546cf62355
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
@@ -42,7 +41,6 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
-	github.com/docker/libtrust v0.0.0-20150114040149-fa567046d9b1 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect

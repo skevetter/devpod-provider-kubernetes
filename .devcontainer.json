@@ -1,1 +1,1 @@
-{"image":"mcr.microsoft.com/devcontainers/go","build":{}}
+{ "image": "ghcr.io/skevetter/devpod:latest" }
