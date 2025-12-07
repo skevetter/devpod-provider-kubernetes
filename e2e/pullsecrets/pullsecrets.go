@@ -43,6 +43,8 @@ var _ = Describe("Pull secrets", func() {
 	})
 
 	It("should create pull secret and make pod use it", func() {
+		Skip("TODO: Setup private test image in container registry")
+
 		By("Login to private container registry")
 		imageName := registry.PrivateImageName()
 
