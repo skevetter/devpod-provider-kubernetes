@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/loft-sh/devpod-provider-kubernetes/pkg/kubernetes"
-	options2 "github.com/loft-sh/devpod-provider-kubernetes/pkg/options"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
+	options2 "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/loft-sh/log"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -43,6 +43,8 @@ var _ = Describe("Pull secrets", func() {
 	})
 
 	It("should create pull secret and make pod use it", func() {
+		Skip("TODO: Setup private test image in container registry")
+
 		By("Login to private container registry")
 		imageName := registry.PrivateImageName()
 

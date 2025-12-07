@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	optionspkg "github.com/loft-sh/devpod-provider-kubernetes/pkg/options"
+	optionspkg "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/loft-sh/devpod/pkg/devcontainer/config"
 	"github.com/loft-sh/devpod/pkg/driver"
 	"github.com/pkg/errors"

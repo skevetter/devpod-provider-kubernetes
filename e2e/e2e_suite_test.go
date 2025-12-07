@@ -7,7 +7,7 @@ import (
 	"github.com/onsi/gomega"
 
 	// Register tests
-	_ "github.com/loft-sh/devpod-provider-kubernetes/e2e/pullsecrets"
+	_ "github.com/skevetter/devpod-provider-kubernetes/e2e/pullsecrets"
 )
 
 func TestRunE2ETests(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/loft-sh/devpod-provider-kubernetes/pkg/options"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/loft-sh/devpod/pkg/command"
 	"github.com/loft-sh/devpod/pkg/driver"
 	"github.com/loft-sh/log"
