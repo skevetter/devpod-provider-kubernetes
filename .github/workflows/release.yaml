@@ -29,8 +29,6 @@ jobs:
         env:
           RELEASE_VERSION: ${{ steps.get_version.outputs.release_version }}
           GITHUB_OWNER: ${{ github.repository_owner }}
-        env:
-          RELEASE_VERSION: ${{ steps.get_version.outputs.release_version }}
 
       - name: release
         uses: softprops/action-gh-release@v2
