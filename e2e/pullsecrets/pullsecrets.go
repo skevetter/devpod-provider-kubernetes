@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/loft-sh/devpod-provider-kubernetes/pkg/kubernetes"
-	options2 "github.com/loft-sh/devpod-provider-kubernetes/pkg/options"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
+	options2 "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/loft-sh/log"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
