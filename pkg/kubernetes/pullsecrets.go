@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/loft-sh/devpod-provider-kubernetes/pkg/docker"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/docker"
 	perrors "github.com/pkg/errors"
 	k8sv1 "k8s.io/api/core/v1"
 )

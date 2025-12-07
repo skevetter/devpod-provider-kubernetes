@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/loft-sh/devpod-provider-kubernetes/pkg/kubernetes"
-	"github.com/loft-sh/devpod-provider-kubernetes/pkg/options"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/loft-sh/devpod/pkg/driver"
 	"github.com/loft-sh/log"
 	"github.com/spf13/cobra"
