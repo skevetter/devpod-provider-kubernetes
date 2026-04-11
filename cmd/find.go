@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/loft-sh/log"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
-	"github.com/loft-sh/log"
 	"github.com/spf13/cobra"
 )
 
@@ -35,7 +35,8 @@ func NewFindCmd() *cobra.Command {
 
 // Run runs the command logic
 func (cmd *FindCmd) Run(ctx context.Context, options *options.Options, log log.Logger) error {
-	containerDetails, err := kubernetes.NewKubernetesDriver(options, log).FindDevContainer(ctx, options.DevContainerID)
+	containerDetails, err := kubernetes.NewKubernetesDriver(options, log).
+		FindDevContainer(ctx, options.DevContainerID)
 	if err != nil {
 		return err
 	} else if containerDetails == nil {

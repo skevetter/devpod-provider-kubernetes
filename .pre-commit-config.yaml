@@ -6,6 +6,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
         args: ["--allow-multiple-documents"]
+        exclude: "^.github/ISSUE_TEMPLATE/"
       - id: check-added-large-files
       - id: check-merge-conflict
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook

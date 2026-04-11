@@ -61,14 +61,14 @@ type Dockerless struct {
 }
 
 type CustomDriver struct {
-	FindDevContainer       string `yaml:"findDevContainer"`
-	CommandDevContainer    string `yaml:"commandDevContainer"`
-	StartDevContainer      string `yaml:"startDevContainer"`
-	StopDevContainer       string `yaml:"stopDevContainer"`
-	RunDevContainer        string `yaml:"runDevContainer"`
-	DeleteDevContainer     string `yaml:"deleteDevContainer"`
-	TargetArchitecture     string `yaml:"targetArchitecture"`
-	CanReprovision         bool   `yaml:"canReprovision"`
+	FindDevContainer    string `yaml:"findDevContainer"`
+	CommandDevContainer string `yaml:"commandDevContainer"`
+	StartDevContainer   string `yaml:"startDevContainer"`
+	StopDevContainer    string `yaml:"stopDevContainer"`
+	RunDevContainer     string `yaml:"runDevContainer"`
+	DeleteDevContainer  string `yaml:"deleteDevContainer"`
+	TargetArchitecture  string `yaml:"targetArchitecture"`
+	CanReprovision      bool   `yaml:"canReprovision"`
 }
 
 type Binary struct {
@@ -187,6 +187,7 @@ func buildOptions() Options {
 	maps.Copy(opts, buildCoreOptions())
 	maps.Copy(opts, buildK8sOptions())
 	maps.Copy(opts, buildAdvancedOptions())
+	maps.Copy(opts, buildDockerlessOptions())
 	return opts
 }
 
@@ -306,9 +307,10 @@ func buildAdvancedOptions() Options {
 			Global:      true,
 		},
 		"DANGEROUSLY_OVERRIDE_IMAGE": {
-			Description: "Only set this if you know what you're doing! Overrides the pod base image and could break your workspace.",
-			Global:      true,
-			Default:     "",
+			Description: "Only set this if you know what you're doing! " +
+				"Overrides the pod base image and could break your workspace.",
+			Global:  true,
+			Default: "",
 		},
 		"STRICT_SECURITY": {
 			Description: "EXPERIMENTAL! Use at your own risk. Removes the default security context " +
@@ -317,18 +319,28 @@ func buildAdvancedOptions() Options {
 			Default: "false",
 		},
 		"WORKSPACE_VOLUME_MOUNT": {
-			Description: "Sets the path of the workspace volume mount. By default it is the root of your workspace source code, " +
-				"usually /workspaces/$WORKSPACE_ID. If you intend to create multi-repo workspaces or need additional files " +
-				"throughout the lifecycle of the workspace, set this option to a parent directory of the workspace mount.",
+			Description: "Sets the path of the workspace volume mount. " +
+				"By default it is the root of your workspace source code, " +
+				"usually /workspaces/$WORKSPACE_ID. " +
+				"If you intend to create multi-repo workspaces or need additional files " +
+				"throughout the lifecycle of the workspace, " +
+				"set this option to a parent directory of the workspace mount.",
 			Type: "string",
 		},
+	}
+}
+
+func buildDockerlessOptions() Options {
+	return Options{
 		"DOCKERLESS_IMAGE": {
 			Description: "The dockerless image to use.",
 			Global:      true,
 		},
 		"DOCKERLESS_DISABLED": {
-			Description: "If dockerless should be disabled. Dockerless is the way DevPod uses to build images directly " +
-				"within Kubernetes. If dockerless is disabled and no image is specified, DevPod will fail instead.",
+			Description: "If dockerless should be disabled. " +
+				"Dockerless is the way DevPod uses to build images directly " +
+				"within Kubernetes. If dockerless is disabled and no image is specified, " +
+				"DevPod will fail instead.",
 			Global:  true,
 			Default: "false",
 		},
@@ -418,7 +430,7 @@ func allPlatforms() []string {
 }
 
 func parseChecksums(path string) (map[string]string, error) {
-	file, err := os.Open(path)
+	file, err := os.Open(path) //nolint:gosec // path is a build-time constant, not user input
 	if err != nil {
 		return nil, err
 	}

@@ -18,8 +18,10 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-const DevContainerName = "devpod"
-const InitContainerName = "devpod-init"
+const (
+	DevContainerName  = "devpod"
+	InitContainerName = "devpod-init"
+)
 
 const (
 	DevPodCreatedLabel      = "devpod.sh/created"
@@ -65,7 +67,10 @@ func (k *KubernetesDriver) RunDevContainer(
 
 	if pvc == nil {
 		if options == nil {
-			return fmt.Errorf("No options provided and no persistent volume claim found for workspace '%s'", workspaceId)
+			return fmt.Errorf(
+				"No options provided and no persistent volume claim found for workspace '%s'",
+				workspaceId,
+			)
 		}
 
 		// create persistent volume claim
@@ -108,7 +113,11 @@ func (k *KubernetesDriver) runContainer(
 		if err != nil {
 			k.Log.Warn("Relative filepath: %v", err)
 		} else if strings.HasPrefix(rel, "..") {
-			k.Log.Warnf("Workspace volume mount needs to be the same as the workspace mount or a parent, skipping option. WorkspaceVolumeMount: %s, MountTarget: %s", k.options.WorkspaceVolumeMount, mount.Target)
+			k.Log.Warnf(
+				"Workspace volume mount needs to be the same as the workspace mount or a parent, skipping option. WorkspaceVolumeMount: %s, MountTarget: %s",
+				k.options.WorkspaceVolumeMount,
+				mount.Target,
+			)
 		} else {
 			mount.Target = k.options.WorkspaceVolumeMount
 			k.Log.Debugf("Using workspace volume mount: %s", k.options.WorkspaceVolumeMount)
@@ -146,7 +155,11 @@ func (k *KubernetesDriver) runContainer(
 		if mount.Type == "bind" || mount.Type == "volume" {
 			volumeMounts = append(volumeMounts, volumeMount)
 		} else {
-			k.Log.Warnf("Unsupported mount type '%s' in mount '%s', will skip", mount.Type, mount.String())
+			k.Log.Warnf(
+				"Unsupported mount type '%s' in mount '%s', will skip",
+				mount.Type,
+				mount.String(),
+			)
 		}
 	}
 
@@ -218,7 +231,19 @@ func (k *KubernetesDriver) runContainer(
 	pod.Spec.ServiceAccountName = serviceAccount
 	pod.Spec.NodeSelector = nodeSelector
 	pod.Spec.InitContainers = initContainers
-	pod.Spec.Containers = getContainers(pod, options.Image, options.Entrypoint, options.Cmd, envVars, volumeMounts, capabilities, resources, options.Privileged, k.options.DangerouslyOverrideImage, k.options.StrictSecurity)
+	pod.Spec.Containers = getContainers(
+		pod,
+		options.Image,
+		options.Entrypoint,
+		options.Cmd,
+		envVars,
+		volumeMounts,
+		capabilities,
+		resources,
+		options.Privileged,
+		k.options.DangerouslyOverrideImage,
+		k.options.StrictSecurity,
+	)
 	pod.Spec.Volumes = getVolumes(pod, id)
 
 	affinity := false
@@ -226,9 +251,20 @@ func (k *KubernetesDriver) runContainer(
 	stderr := &bytes.Buffer{}
 	affinityPodID := ""
 
-	err = k.runCommand(ctx, []string{"get", "pods", "-o=name", "-l", DevPodWorkspaceLabel + "=" + id}, nil, stdout, stderr)
+	err = k.runCommand(
+		ctx,
+		[]string{"get", "pods", "-o=name", "-l", DevPodWorkspaceLabel + "=" + id},
+		nil,
+		stdout,
+		stderr,
+	)
 	if err != nil {
-		k.Log.Debugf("skipping finding cluster architecture: %s %s %w", stdout.String(), stderr.String(), err)
+		k.Log.Debugf(
+			"skipping finding cluster architecture: %s %s %w",
+			stdout.String(),
+			stderr.String(),
+			err,
+		)
 	}
 	if stdout.String() != "" {
 		affinityPodID = strings.TrimSpace(stdout.String())
@@ -278,7 +314,10 @@ func (k *KubernetesDriver) runContainer(
 
 	if existingPod != nil {
 		existingOptions := &optionspkg.Options{}
-		err := json.Unmarshal([]byte(existingPod.GetAnnotations()[DevPodLastAppliedAnnotation]), existingOptions)
+		err := json.Unmarshal(
+			[]byte(existingPod.GetAnnotations()[DevPodLastAppliedAnnotation]),
+			existingOptions,
+		)
 		if err != nil {
 			k.Log.Errorf("Error unmarshalling existing provider options, continuing...: %s", err)
 		}
@@ -305,7 +344,12 @@ func (k *KubernetesDriver) runContainer(
 	return nil
 }
 
-func (k *KubernetesDriver) runPod(ctx context.Context, id string, pod *corev1.Pod, affinity bool) error {
+func (k *KubernetesDriver) runPod(
+	ctx context.Context,
+	id string,
+	pod *corev1.Pod,
+	affinity bool,
+) error {
 	var err error
 
 	// set configuration before creating the pod
@@ -329,7 +373,13 @@ func (k *KubernetesDriver) runPod(ctx context.Context, id string, pod *corev1.Po
 	// create the pod
 	k.Log.Infof("Create Pod '%s'", id)
 	buf := &bytes.Buffer{}
-	err = k.runCommand(ctx, []string{"create", "-f", "-"}, strings.NewReader(string(podRaw)), buf, buf)
+	err = k.runCommand(
+		ctx,
+		[]string{"create", "-f", "-"},
+		strings.NewReader(string(podRaw)),
+		buf,
+		buf,
+	)
 	if err != nil {
 		return errors.Wrapf(err, "create pod: %s", buf.String())
 	}
@@ -343,7 +393,13 @@ func (k *KubernetesDriver) runPod(ctx context.Context, id string, pod *corev1.Po
 
 	if affinity {
 		k.Log.Infof("Cleaning up architecture detection pod")
-		err := k.runCommand(ctx, []string{"delete", "pods", "--force", "-l", DevPodWorkspaceLabel + "=" + id}, nil, buf, buf)
+		err := k.runCommand(
+			ctx,
+			[]string{"delete", "pods", "--force", "-l", DevPodWorkspaceLabel + "=" + id},
+			nil,
+			buf,
+			buf,
+		)
 		if err != nil {
 			return errors.Wrapf(err, "cleanup jobs: %s", buf.String())
 		}
@@ -407,10 +463,13 @@ func getContainers(
 		devPodContainer.Env = append(existingDevPodContainer.Env, devPodContainer.Env...)
 		devPodContainer.EnvFrom = existingDevPodContainer.EnvFrom
 		devPodContainer.Ports = existingDevPodContainer.Ports
-		devPodContainer.VolumeMounts = append(existingDevPodContainer.VolumeMounts, devPodContainer.VolumeMounts...)
+		devPodContainer.VolumeMounts = append(
+			existingDevPodContainer.VolumeMounts,
+			devPodContainer.VolumeMounts...)
 		devPodContainer.ImagePullPolicy = existingDevPodContainer.ImagePullPolicy
 
-		if devPodContainer.SecurityContext == nil && existingDevPodContainer.SecurityContext != nil {
+		if devPodContainer.SecurityContext == nil &&
+			existingDevPodContainer.SecurityContext != nil {
 			devPodContainer.SecurityContext = existingDevPodContainer.SecurityContext
 		}
 	}

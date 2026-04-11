@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
-	options2 "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/loft-sh/log"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
+	options2 "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s "k8s.io/client-go/kubernetes"
@@ -71,13 +71,17 @@ var _ = Describe("Pull secrets", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(created).To(BeTrue())
 
-		_, err = client.CoreV1().Secrets(namespace).Get(context.TODO(), pullSecretName, metav1.GetOptions{})
+		_, err = client.CoreV1().
+			Secrets(namespace).
+			Get(context.TODO(), pullSecretName, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		err = driver.DeletePullSecret(context.TODO(), pullSecretName)
 		Expect(err).NotTo(HaveOccurred())
 
-		_, err = client.CoreV1().Secrets(namespace).Get(context.TODO(), pullSecretName, metav1.GetOptions{})
+		_, err = client.CoreV1().
+			Secrets(namespace).
+			Get(context.TODO(), pullSecretName, metav1.GetOptions{})
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -91,7 +95,9 @@ var _ = Describe("Pull secrets", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(created).To(BeTrue())
 
-		_, err = client.CoreV1().Secrets(namespace).Get(context.TODO(), pullSecretName, metav1.GetOptions{})
+		_, err = client.CoreV1().
+			Secrets(namespace).
+			Get(context.TODO(), pullSecretName, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		created, err = driver.EnsurePullSecret(context.TODO(), pullSecretName, imageName)
@@ -107,7 +113,9 @@ var _ = Describe("Pull secrets", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(created).To(BeFalse())
 
-		_, err = client.CoreV1().Secrets(namespace).Get(context.TODO(), pullSecretName, metav1.GetOptions{})
+		_, err = client.CoreV1().
+			Secrets(namespace).
+			Get(context.TODO(), pullSecretName, metav1.GetOptions{})
 		Expect(err).To(HaveOccurred())
 
 		// create pod without pull secret
@@ -216,7 +224,9 @@ func createPod(client *k8s.Clientset, namespace, image string, pullSecretName ..
 	Expect(err).NotTo(HaveOccurred())
 
 	Eventually(func() v1.PodPhase {
-		pod, err := client.CoreV1().Pods(namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+		pod, err := client.CoreV1().
+			Pods(namespace).
+			Get(context.TODO(), pod.Name, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		return pod.Status.Phase
 	}, time.Minute*1, time.Second*5).Should(Or(Equal(v1.PodRunning), Equal(v1.PodSucceeded)))

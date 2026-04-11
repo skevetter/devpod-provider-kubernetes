@@ -4,7 +4,7 @@
 
 ## Getting started
 
-The provider is available for auto-installation using 
+The provider is available for auto-installation using
 
 ```sh
 devpod provider add kubernetes
@@ -36,9 +36,9 @@ devpod provider delete kubernetes
 ```
 3. Install the new provider from the local build
 ```sh
-devpod provider add --name kubernetes --use ./release/provider.yaml 
+devpod provider add --name kubernetes --use ./release/provider.yaml
 ```
 4. Test your provider, e.g. with `devpod up` command. Make sure you have a valid kubeconfig file in your home directory.
 ```sh
-devpod up <repository-url> --provider kubernetes --debug 
+devpod up <repository-url> --provider kubernetes --debug
 ```

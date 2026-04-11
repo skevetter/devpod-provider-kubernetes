@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
-	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/loft-sh/devpod/pkg/driver"
 	"github.com/loft-sh/log"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/spf13/cobra"
 )
 
@@ -48,5 +48,6 @@ func (cmd *RunCmd) Run(ctx context.Context, options *options.Options, log log.Lo
 		}
 	}
 
-	return kubernetes.NewKubernetesDriver(options, log).RunDevContainer(ctx, options.DevContainerID, runOptions)
+	return kubernetes.NewKubernetesDriver(options, log).
+		RunDevContainer(ctx, options.DevContainerID, runOptions)
 }

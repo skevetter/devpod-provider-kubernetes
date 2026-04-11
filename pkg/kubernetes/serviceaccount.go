@@ -12,9 +12,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (k *KubernetesDriver) createServiceAccount(ctx context.Context, id, serviceAccount string) error {
+func (k *KubernetesDriver) createServiceAccount(
+	ctx context.Context,
+	id, serviceAccount string,
+) error {
 	// try to find pvc
-	out, err := k.buildCmd(ctx, []string{"get", "serviceaccount", serviceAccount, "--ignore-not-found", "-o", "json"}).Output()
+	out, err := k.buildCmd(ctx, []string{"get", "serviceaccount", serviceAccount, "--ignore-not-found", "-o", "json"}).
+		Output()
 	if err != nil {
 		return command.WrapCommandError(out, err)
 	} else if len(out) == 0 {
@@ -35,7 +39,13 @@ func (k *KubernetesDriver) createServiceAccount(ctx context.Context, id, service
 
 		k.Log.Infof("Create Service Account '%s'", serviceAccount)
 		buf := &bytes.Buffer{}
-		err = k.runCommand(ctx, []string{"create", "-f", "-"}, bytes.NewReader(serviceAccountRaw), buf, buf)
+		err = k.runCommand(
+			ctx,
+			[]string{"create", "-f", "-"},
+			bytes.NewReader(serviceAccountRaw),
+			buf,
+			buf,
+		)
 		if err != nil {
 			return errors.Wrapf(err, "create service account: %s", buf.String())
 		}
@@ -43,7 +53,8 @@ func (k *KubernetesDriver) createServiceAccount(ctx context.Context, id, service
 
 	// try to find role binding
 	if k.options.ClusterRole != "" {
-		out, err = k.buildCmd(ctx, []string{"get", "rolebinding", id, "--ignore-not-found", "-o", "json"}).Output()
+		out, err = k.buildCmd(ctx, []string{"get", "rolebinding", id, "--ignore-not-found", "-o", "json"}).
+			Output()
 		if err != nil {
 			return command.WrapCommandError(out, err)
 		} else if len(out) == 0 {
@@ -75,7 +86,13 @@ func (k *KubernetesDriver) createServiceAccount(ctx context.Context, id, service
 
 			k.Log.Infof("Create Role Binding '%s'", serviceAccount)
 			buf := &bytes.Buffer{}
-			err = k.runCommand(ctx, []string{"create", "-f", "-"}, bytes.NewReader(roleBindingRaw), buf, buf)
+			err = k.runCommand(
+				ctx,
+				[]string{"create", "-f", "-"},
+				bytes.NewReader(roleBindingRaw),
+				buf,
+				buf,
+			)
 			if err != nil {
 				return errors.Wrapf(err, "create role binding: %s", buf.String())
 			}

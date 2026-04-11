@@ -12,8 +12,10 @@ import (
 	perrors "github.com/pkg/errors"
 )
 
-const dockerFileFolder = ".docker"
-const AzureContainerRegistryUsername = "00000000-0000-0000-0000-000000000000"
+const (
+	dockerFileFolder               = ".docker"
+	AzureContainerRegistryUsername = "00000000-0000-0000-0000-000000000000"
+)
 
 func GetAuthConfig(host string) (*Credentials, error) {
 	dockerConfig, err := loadDockerConfig()

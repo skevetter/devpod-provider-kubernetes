@@ -14,7 +14,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (k *KubernetesDriver) TargetArchitecture(ctx context.Context, workspaceId string) (string, error) {
+func (k *KubernetesDriver) TargetArchitecture(
+	ctx context.Context,
+	workspaceId string,
+) (string, error) {
 	workspaceId = getID(workspaceId)
 
 	// namespace
@@ -35,7 +38,10 @@ func (k *KubernetesDriver) TargetArchitecture(ctx context.Context, workspaceId s
 	}
 	// parse pod manifest template if provided
 	if len(k.options.ArchDetectionPodManifestTemplate) > 0 {
-		k.Log.Debugf("trying to get arch detection pod template manifest from %s", k.options.ArchDetectionPodManifestTemplate)
+		k.Log.Debugf(
+			"trying to get arch detection pod template manifest from %s",
+			k.options.ArchDetectionPodManifestTemplate,
+		)
 		p, err := getPodTemplate(k.options.ArchDetectionPodManifestTemplate)
 		if err != nil {
 			return "", err
@@ -58,7 +64,11 @@ func (k *KubernetesDriver) TargetArchitecture(ctx context.Context, workspaceId s
 
 	pod.Labels = labels
 	pod.Spec.RestartPolicy = corev1.RestartPolicyNever
-	pod.Spec.Containers = getArchitectureDetectionPodContainers(pod, k.helperImage(), []string{"sh", "-c", "uname -m && tail -f /dev/null"})
+	pod.Spec.Containers = getArchitectureDetectionPodContainers(
+		pod,
+		k.helperImage(),
+		[]string{"sh", "-c", "uname -m && tail -f /dev/null"},
+	)
 
 	podRaw, err := json.Marshal(pod)
 	if err != nil {
@@ -69,22 +79,43 @@ func (k *KubernetesDriver) TargetArchitecture(ctx context.Context, workspaceId s
 	k.Log.Infof("Find out cluster architecture...")
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
-	err = k.runCommand(ctx, []string{"create", "-f", "-"}, strings.NewReader(string(podRaw)), stdout, stderr)
+	err = k.runCommand(
+		ctx,
+		[]string{"create", "-f", "-"},
+		strings.NewReader(string(podRaw)),
+		stdout,
+		stderr,
+	)
 	if err != nil {
-		return "", fmt.Errorf("find out cluster architecture: %s %s %w", stdout.String(), stderr.String(), err)
+		return "", fmt.Errorf(
+			"find out cluster architecture: %s %s %w",
+			stdout.String(),
+			stderr.String(),
+			err,
+		)
 	}
 
 	// wait for pod running
 	k.Log.Infof("Waiting for cluster architecture job to come up...")
 	_, err = k.waitPodRunning(ctx, podName)
 	if err != nil {
-		return "", fmt.Errorf("find out cluster architecture: %s %s %w", stdout.String(), stderr.String(), err)
+		return "", fmt.Errorf(
+			"find out cluster architecture: %s %s %w",
+			stdout.String(),
+			stderr.String(),
+			err,
+		)
 	}
 
 	// capture uname output
 	err = k.runCommand(ctx, []string{"logs", podName, "-n", k.namespace}, os.Stdin, stdout, stderr)
 	if err != nil {
-		return "", fmt.Errorf("find out cluster architecture: %s %s %w", stdout.String(), stderr.String(), err)
+		return "", fmt.Errorf(
+			"find out cluster architecture: %s %s %w",
+			stdout.String(),
+			stderr.String(),
+			err,
+		)
 	}
 
 	unameOutput := stdout.String()
@@ -131,11 +162,14 @@ func getArchitectureDetectionPodContainers(
 		devPodContainer.Env = append(existingDevPodContainer.Env, devPodContainer.Env...)
 		devPodContainer.EnvFrom = existingDevPodContainer.EnvFrom
 		devPodContainer.Ports = existingDevPodContainer.Ports
-		devPodContainer.VolumeMounts = append(existingDevPodContainer.VolumeMounts, devPodContainer.VolumeMounts...)
+		devPodContainer.VolumeMounts = append(
+			existingDevPodContainer.VolumeMounts,
+			devPodContainer.VolumeMounts...)
 		devPodContainer.ImagePullPolicy = existingDevPodContainer.ImagePullPolicy
 		devPodContainer.Resources = existingDevPodContainer.Resources
 
-		if devPodContainer.SecurityContext == nil && existingDevPodContainer.SecurityContext != nil {
+		if devPodContainer.SecurityContext == nil &&
+			existingDevPodContainer.SecurityContext != nil {
 			devPodContainer.SecurityContext = existingDevPodContainer.SecurityContext
 		}
 	}

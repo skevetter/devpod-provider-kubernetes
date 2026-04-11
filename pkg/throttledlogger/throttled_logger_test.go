@@ -5,9 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/loft-sh/log"
+	"github.com/stretchr/testify/assert"
 )
 
 type MockLogger struct {
