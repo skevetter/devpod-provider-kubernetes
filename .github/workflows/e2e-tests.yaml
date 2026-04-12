@@ -1,14 +1,10 @@
 name: E2E tests
 
 on:
+  push:
+    branches: [main]
   pull_request:
-    branches:
-      - main
-    paths:
-      - "**.go"
-      - "!**_test.go" # exclude test files to ignore unit test changes
-      - "e2e/**_test.go" # include test files in e2e again
-      - ".github/workflows/e2e-tests.yaml"
+  workflow_dispatch:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
