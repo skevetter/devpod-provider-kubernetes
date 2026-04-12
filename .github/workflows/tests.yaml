@@ -6,9 +6,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-    GO111MODULE: on
-
 jobs:
   test-e2e:
     runs-on: ubuntu-latest
