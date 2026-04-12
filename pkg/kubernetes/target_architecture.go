@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"strings"
 
@@ -31,7 +32,7 @@ func (k *KubernetesDriver) TargetArchitecture(
 }
 
 func (k *KubernetesDriver) ensureNamespace(ctx context.Context) {
-	if k.namespace != "" && k.options.CreateNamespace == "true" {
+	if k.namespace != "" && k.options.CreateNamespace == trueStr {
 		k.Log.Debugf("Create namespace '%s'", k.namespace)
 		buf := &bytes.Buffer{}
 		err := k.runCommand(
@@ -78,9 +79,7 @@ func (k *KubernetesDriver) buildArchDetectionPod(
 	if pod.Labels == nil {
 		pod.Labels = map[string]string{}
 	}
-	for k, label := range pod.Labels {
-		labels[k] = label
-	}
+	maps.Copy(labels, pod.Labels)
 	labels[DevPodWorkspaceLabel] = workspaceId
 	pod.Labels = labels
 
@@ -119,7 +118,7 @@ func (k *KubernetesDriver) detectArchitecture(
 	}
 
 	k.Log.Infof("Waiting for cluster architecture job to come up...")
-	_, err = k.waitPodRunning(ctx, pod.Name)
+	err = k.waitPodRunning(ctx, pod.Name)
 	if err != nil {
 		return "", fmt.Errorf(
 			"find out cluster architecture: %s %s %w",

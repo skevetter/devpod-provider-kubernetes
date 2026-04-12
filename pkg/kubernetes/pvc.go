@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/loft-sh/devpod/pkg/driver"
@@ -59,37 +60,17 @@ func (k *KubernetesDriver) buildPersistentVolumeClaim(
 	if k.options.StorageClass != "" {
 		storageClassName = &k.options.StorageClass
 	}
-	accessMode := []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce}
-	if k.options.PvcAccessMode != "" {
-		switch k.options.PvcAccessMode {
-		case "RWO":
-			accessMode = []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce}
-		case "ROX":
-			accessMode = []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany}
-		case "RWX":
-			accessMode = []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany}
-		case "RWOP":
-			accessMode = []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOncePod}
-		default:
-			accessMode = []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce}
-		}
-	}
+	accessMode := parseAccessMode(k.options.PvcAccessMode)
 
-	labels := map[string]string{}
-	labels[DevPodWorkspaceUIDLabel] = options.UID
-	for k, v := range ExtraDevPodLabels {
-		labels[k] = v
-	}
+	labels := map[string]string{DevPodWorkspaceUIDLabel: options.UID}
+	maps.Copy(labels, ExtraDevPodLabels)
 
-	annotations := map[string]string{}
-	annotations[DevPodInfoAnnotation] = containerInfo
+	annotations := map[string]string{DevPodInfoAnnotation: containerInfo}
 	extraAnnotations, err := parseLabels(k.options.PvcAnnotations)
 	if err != nil {
 		k.Log.Error("Failed to parse annotations from PVC_ANNOTATIONS option: %v", err)
 	}
-	for k, v := range extraAnnotations {
-		annotations[k] = v
-	}
+	maps.Copy(annotations, extraAnnotations)
 
 	pvc := &corev1.PersistentVolumeClaim{
 		TypeMeta: metav1.TypeMeta{
@@ -133,4 +114,17 @@ func (k *KubernetesDriver) getDevContainerInformation(
 	}
 
 	return string(containerInfo), nil
+}
+
+func parseAccessMode(mode string) []corev1.PersistentVolumeAccessMode {
+	switch mode {
+	case "ROX":
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany}
+	case "RWX":
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany}
+	case "RWOP":
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOncePod}
+	default:
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce}
+	}
 }

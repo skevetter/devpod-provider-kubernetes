@@ -13,10 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// RunCmd holds the cmd flags
+// RunCmd holds the cmd flags.
 type RunCmd struct{}
 
-// NewRunCmd defines a command
+// NewRunCmd defines a command.
 func NewRunCmd() *cobra.Command {
 	cmd := &RunCmd{}
 	runCmd := &cobra.Command{
@@ -35,7 +35,7 @@ func NewRunCmd() *cobra.Command {
 	return runCmd
 }
 
-// Run runs the command logic
+// Run runs the command logic.
 func (cmd *RunCmd) Run(ctx context.Context, options *options.Options, log log.Logger) error {
 	var runOptions *driver.RunOptions
 

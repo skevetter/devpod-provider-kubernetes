@@ -39,7 +39,7 @@ func (r *Registry) Server() string {
 }
 
 func (r *Registry) Login() {
-	cmd := exec.Command(
+	cmd := exec.Command( //nolint:gosec // test helper, inputs are test fixtures
 		"docker",
 		"login",
 		r.server,
@@ -53,7 +53,7 @@ func (r *Registry) Login() {
 	}
 
 	go func() {
-		defer stdin.Close()
+		defer func() { _ = stdin.Close() }()
 		_, _ = stdin.Write([]byte(r.password))
 	}()
 
@@ -64,7 +64,11 @@ func (r *Registry) Login() {
 }
 
 func (r *Registry) Logout() {
-	cmd := exec.Command("docker", "logout", r.server)
+	cmd := exec.Command( //nolint:gosec // test helper, inputs are test fixtures
+		"docker",
+		"logout",
+		r.server,
+	)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		panic(fmt.Sprintf("failed to logout of Docker: %v, output: %s", err, output))
@@ -72,10 +76,6 @@ func (r *Registry) Logout() {
 }
 
 type AWSRegistry struct{ Registry }
-
-func (r *AWSRegistry) imageName(basename string) string {
-	return path.Join(r.Server(), basename)
-}
 
 func (r *AWSRegistry) PrivateImageName() string {
 	return r.imageName("private-test-image")
@@ -85,11 +85,11 @@ func (r *AWSRegistry) PublicImageName() string {
 	return r.imageName("public-test-image")
 }
 
-type GithubRegistry struct{ Registry }
-
-func (r *GithubRegistry) imageName(basename string) string {
-	return path.Join("ghcr.io/loft-sh/devpod-provider-kubernetes/", basename)
+func (r *AWSRegistry) imageName(basename string) string {
+	return path.Join(r.Server(), basename)
 }
+
+type GithubRegistry struct{ Registry }
 
 func (r *GithubRegistry) PrivateImageName() string {
 	return r.imageName("private-test-image")
@@ -99,11 +99,11 @@ func (r *GithubRegistry) PublicImageName() string {
 	return r.imageName("public-test-image")
 }
 
-type DockerHubRegistry struct{ Registry }
-
-func (r *DockerHubRegistry) imageName(basename string) string {
-	return path.Join(r.Username(), basename)
+func (r *GithubRegistry) imageName(basename string) string {
+	return path.Join("ghcr.io/loft-sh/devpod-provider-kubernetes/", basename)
 }
+
+type DockerHubRegistry struct{ Registry }
 
 func (r *DockerHubRegistry) PrivateImageName() string {
 	return r.imageName("private-test-image")
@@ -111,6 +111,10 @@ func (r *DockerHubRegistry) PrivateImageName() string {
 
 func (r *DockerHubRegistry) PublicImageName() string {
 	return r.imageName("public-test-image")
+}
+
+func (r *DockerHubRegistry) imageName(basename string) string {
+	return path.Join(r.Username(), basename)
 }
 
 func RegistryFromEnv() (ContainerRegistry, error) {

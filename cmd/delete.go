@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// DeleteCmd holds the cmd flags
+// DeleteCmd holds the cmd flags.
 type DeleteCmd struct{}
 
-// NewDeleteCmd defines a command
+// NewDeleteCmd defines a command.
 func NewDeleteCmd() *cobra.Command {
 	cmd := &DeleteCmd{}
 	deleteCmd := &cobra.Command{
@@ -31,7 +31,7 @@ func NewDeleteCmd() *cobra.Command {
 	return deleteCmd
 }
 
-// Run runs the command logic
+// Run runs the command logic.
 func (cmd *DeleteCmd) Run(ctx context.Context, options *options.Options, log log.Logger) error {
 	return kubernetes.NewKubernetesDriver(options, log).
 		DeleteDevContainer(ctx, options.DevContainerID)

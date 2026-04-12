@@ -7,7 +7,7 @@ import (
 
 const OfficialDockerRegistry = "https://index.docker.io/v1/"
 
-// GetRegistryFromImageName retrieves the registry name from an imageName
+// GetRegistryFromImageName retrieves the registry name from an imageName.
 func GetRegistryFromImageName(imageName string) (string, error) {
 	ref, err := reference.ParseNormalizedNamed(imageName)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/loft-sh/log"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
@@ -11,10 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// FindCmd holds the cmd flags
+// FindCmd holds the cmd flags.
 type FindCmd struct{}
 
-// NewFindCmd defines a command
+// NewFindCmd defines a command.
 func NewFindCmd() *cobra.Command {
 	cmd := &FindCmd{}
 	findCmd := &cobra.Command{
@@ -33,7 +34,7 @@ func NewFindCmd() *cobra.Command {
 	return findCmd
 }
 
-// Run runs the command logic
+// Run runs the command logic.
 func (cmd *FindCmd) Run(ctx context.Context, options *options.Options, log log.Logger) error {
 	containerDetails, err := kubernetes.NewKubernetesDriver(options, log).
 		FindDevContainer(ctx, options.DevContainerID)
@@ -48,6 +49,6 @@ func (cmd *FindCmd) Run(ctx context.Context, options *options.Options, log log.L
 		return fmt.Errorf("error marshalling container details: %w", err)
 	}
 
-	fmt.Println(string(out))
-	return nil
+	_, err = os.Stdout.WriteString(string(out) + "\n")
+	return err
 }

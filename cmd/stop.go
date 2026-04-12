@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// StopCmd holds the cmd flags
+// StopCmd holds the cmd flags.
 type StopCmd struct{}
 
-// NewStopCmd defines a command
+// NewStopCmd defines a command.
 func NewStopCmd() *cobra.Command {
 	cmd := &StopCmd{}
 	stopCmd := &cobra.Command{
@@ -31,7 +31,7 @@ func NewStopCmd() *cobra.Command {
 	return stopCmd
 }
 
-// Run runs the command logic
+// Run runs the command logic.
 func (cmd *StopCmd) Run(ctx context.Context, options *options.Options, log log.Logger) error {
 	return kubernetes.NewKubernetesDriver(options, log).
 		StopDevContainer(ctx, options.DevContainerID)

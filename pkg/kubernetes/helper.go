@@ -25,8 +25,7 @@ func parseResources(resourceString string, log log.Logger) corev1.ResourceRequir
 		resourceName = strings.TrimSpace(resourceName)
 
 		// requests
-		if strings.HasPrefix(resourceName, requestsPrefix) {
-			strippedResource := strings.TrimPrefix(resourceName, requestsPrefix)
+		if strippedResource, ok := strings.CutPrefix(resourceName, requestsPrefix); ok {
 			name, quantity, err := parseResource(strippedResource)
 			if err != nil {
 				log.Error(err.Error())
@@ -37,8 +36,7 @@ func parseResources(resourceString string, log log.Logger) corev1.ResourceRequir
 		}
 
 		// limits
-		if strings.HasPrefix(resourceName, limitsPrefix) {
-			strippedResource := strings.TrimPrefix(resourceName, limitsPrefix)
+		if strippedResource, ok := strings.CutPrefix(resourceName, limitsPrefix); ok {
 			name, quantity, err := parseResource(strippedResource)
 			if err != nil {
 				log.Error(err.Error())
@@ -72,7 +70,7 @@ func getPodTemplate(manifest string) (*corev1.Pod, error) {
 			err,
 		)
 	}
-	body, err := os.ReadFile(p)
+	body, err := os.ReadFile(p) //nolint:gosec // path comes from user configuration
 	if err != nil {
 		return nil, fmt.Errorf(
 			"parsing pod tempate failed failed: %w (inline) or %w (file)",

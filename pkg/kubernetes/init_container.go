@@ -49,7 +49,7 @@ func buildInitMounts(
 	commands := []string{}
 	volumeMounts := []corev1.VolumeMount{}
 	for idx, mount := range options.Mounts {
-		if mount.Type != "volume" {
+		if mount.Type != volumeType {
 			continue
 		}
 		volumeMount := getVolumeMount(idx+1, mount)

@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/loft-sh/log"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
@@ -10,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TargetArchitectureCmd holds the cmd flags
+// TargetArchitectureCmd holds the cmd flags.
 type TargetArchitectureCmd struct{}
 
-// NewTargetArchitectureCmd defines a command
+// NewTargetArchitectureCmd defines a command.
 func NewTargetArchitectureCmd() *cobra.Command {
 	cmd := &TargetArchitectureCmd{}
 	targetArchitectureCmd := &cobra.Command{
@@ -32,7 +33,7 @@ func NewTargetArchitectureCmd() *cobra.Command {
 	return targetArchitectureCmd
 }
 
-// Run runs the command logic
+// Run runs the command logic.
 func (cmd *TargetArchitectureCmd) Run(
 	ctx context.Context,
 	options *options.Options,
@@ -44,6 +45,6 @@ func (cmd *TargetArchitectureCmd) Run(
 		return fmt.Errorf("get target architecture: %w", err)
 	}
 
-	fmt.Println(arch)
-	return nil
+	_, err = os.Stdout.WriteString(arch + "\n")
+	return err
 }

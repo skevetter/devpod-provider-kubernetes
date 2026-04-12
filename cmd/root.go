@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// NewRootCmd returns a new root command
+// NewRootCmd returns a new root command.
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:           "devpod-provider-kubernetes",
@@ -54,7 +54,7 @@ func Execute() {
 	}
 }
 
-// BuildRoot creates a new root command from the
+// BuildRoot creates a new root command from the provider.
 func BuildRoot() *cobra.Command {
 	rootCmd := NewRootCmd()
 	rootCmd.AddCommand(NewStartCmd())

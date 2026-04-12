@@ -8,8 +8,7 @@ import (
 	k8sv1 "k8s.io/api/core/v1"
 )
 
-// DockerConfigJSON represents a local docker auth config file
-// for pulling images.
+// DockerConfigJSON represents a local docker auth config file for pulling images.
 type DockerConfigJSON struct {
 	Auths DockerConfig `json:"auths"`
 }
@@ -19,7 +18,7 @@ type DockerConfigJSON struct {
 // when pulling images from specific image repositories.
 type DockerConfig map[string]DockerConfigEntry
 
-// DockerConfigEntry holds the user information that grant the access to docker registry
+// DockerConfigEntry holds the user information that grant the access to docker registry.
 type DockerConfigEntry struct {
 	Auth  string `json:"auth"`
 	Email string `json:"email"`

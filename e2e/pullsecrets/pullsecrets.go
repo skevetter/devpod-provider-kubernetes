@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/loft-sh/log"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:staticcheck // ginkgo/gomega convention
+	. "github.com/onsi/gomega"    //nolint:staticcheck // ginkgo/gomega convention
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
 	options2 "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	v1 "k8s.io/api/core/v1"
@@ -178,7 +178,10 @@ func prepareK8sDriver(namespace string) *kubernetes.KubernetesDriver {
 }
 
 func createEphemeralNamespace(client *k8s.Clientset) string {
-	namespace := fmt.Sprintf("test-ns-%d", rand.Int())
+	namespace := fmt.Sprintf(
+		"test-ns-%d",
+		rand.Int(), //nolint:gosec // cryptographic randomness not needed
+	)
 
 	_, err := client.CoreV1().Namespaces().Create(context.TODO(), &v1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{

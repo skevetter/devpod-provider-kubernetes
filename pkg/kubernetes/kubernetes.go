@@ -106,16 +106,6 @@ func (k *KubernetesDriver) DeleteDevContainer(ctx context.Context, workspaceId s
 	return nil
 }
 
-func (k *KubernetesDriver) deletePod(ctx context.Context, podName string) error {
-	out, err := k.buildCmd(ctx, []string{"delete", "po", podName, "--ignore-not-found", "--grace-period=10"}).
-		CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("delete pod: %s: %w", string(out), err)
-	}
-
-	return nil
-}
-
 //nolint:revive // interface compliance
 func (k *KubernetesDriver) CommandDevContainer(
 	ctx context.Context,
@@ -151,6 +141,16 @@ func (k *KubernetesDriver) GetDevContainerLogs(
 	args := []string{"logs", "pods/" + workspaceID, "-c", "devpod"}
 
 	return k.runCommand(ctx, args, cmdIO{stdout: stdout, stderr: stderr})
+}
+
+func (k *KubernetesDriver) deletePod(ctx context.Context, podName string) error {
+	out, err := k.buildCmd(ctx, []string{"delete", "po", podName, "--ignore-not-found", "--grace-period=10"}).
+		CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("delete pod: %s: %w", string(out), err)
+	}
+
+	return nil
 }
 
 func (k *KubernetesDriver) getDevContainerPvc(
@@ -205,6 +205,7 @@ func (k *KubernetesDriver) buildCmd(ctx context.Context, args []string) *exec.Cm
 	}
 	newArgs = append(newArgs, args...)
 	k.Log.Debugf("Run command: %s %s", k.kubectl, strings.Join(newArgs, " "))
+	//nolint:gosec // kubectl path is from trusted configuration
 	return exec.CommandContext(ctx, k.kubectl, newArgs...)
 }
 

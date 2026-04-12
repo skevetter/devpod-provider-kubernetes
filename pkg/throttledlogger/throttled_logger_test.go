@@ -14,7 +14,7 @@ type MockLogger struct {
 	Messages []string
 }
 
-func (m *MockLogger) Infof(format string, args ...interface{}) {
+func (m *MockLogger) Infof(format string, args ...any) {
 	m.Messages = append(m.Messages, fmt.Sprintf(format, args...))
 }
 
