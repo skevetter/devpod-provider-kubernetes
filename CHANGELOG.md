@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.4...v0.1.5) (2026-04-12)
+
+
+### Bug Fixes
+
+* resolve all remaining lint violations ([#11](https://github.com/skevetter/devpod-provider-kubernetes/issues/11)) ([c92527f](https://github.com/skevetter/devpod-provider-kubernetes/commit/c92527f384a85675f784116ce277c9341c385d07))
+
 ## [0.1.4](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.3...v0.1.4) (2026-04-12)
 
 
