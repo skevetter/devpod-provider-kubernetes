@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.3...v0.1.4) (2026-04-12)
+
+
+### Bug Fixes
+
+* refactor runCommand to use cmdIO struct ([#9](https://github.com/skevetter/devpod-provider-kubernetes/issues/9)) ([fbfd2c1](https://github.com/skevetter/devpod-provider-kubernetes/commit/fbfd2c1f574481b4e2a6d29e00a9575aee1d0e7b))
+
 ## [0.1.3](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.2...v0.1.3) (2026-04-12)
 
 
