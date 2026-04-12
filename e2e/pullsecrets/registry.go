@@ -100,7 +100,7 @@ func (r *GithubRegistry) PublicImageName() string {
 }
 
 func (r *GithubRegistry) imageName(basename string) string {
-	return path.Join("ghcr.io/loft-sh/devpod-provider-kubernetes/", basename)
+	return path.Join("ghcr.io/skevetter/devpod-provider-kubernetes/", basename)
 }
 
 type DockerHubRegistry struct{ Registry }

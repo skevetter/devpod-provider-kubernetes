@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/loft-sh/devpod/pkg/encoding"
-	"github.com/loft-sh/devpod/pkg/random"
+	"github.com/skevetter/devpod/pkg/encoding"
+	"github.com/skevetter/devpod/pkg/random"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

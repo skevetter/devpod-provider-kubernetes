@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loft-sh/log"
+	"github.com/skevetter/log"
 	"github.com/stretchr/testify/assert"
 )
 

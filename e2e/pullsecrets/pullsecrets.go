@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/loft-sh/log"
+	"github.com/skevetter/log"
 	. "github.com/onsi/ginkgo/v2" //nolint:staticcheck // ginkgo/gomega convention
 	. "github.com/onsi/gomega"    //nolint:staticcheck // ginkgo/gomega convention
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"

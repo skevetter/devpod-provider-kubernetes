@@ -1,7 +1,7 @@
 package kubernetes
 
 import (
-	"github.com/docker/distribution/reference"
+	"github.com/distribution/reference"
 	"github.com/docker/docker/registry"
 )
 

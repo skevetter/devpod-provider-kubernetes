@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	log2 "github.com/loft-sh/log"
+	log2 "github.com/skevetter/log"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"

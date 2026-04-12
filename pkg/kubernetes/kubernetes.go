@@ -8,9 +8,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/loft-sh/devpod/pkg/command"
-	"github.com/loft-sh/devpod/pkg/driver"
-	"github.com/loft-sh/log"
+	"github.com/skevetter/devpod/pkg/command"
+	"github.com/skevetter/devpod/pkg/driver"
+	"github.com/skevetter/log"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	corev1 "k8s.io/api/core/v1"
 )

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/loft-sh/log"
+	"github.com/skevetter/log"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/spf13/cobra"

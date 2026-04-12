@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loft-sh/devpod/pkg/command"
+	"github.com/skevetter/devpod/pkg/command"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/throttledlogger"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
