@@ -191,15 +191,12 @@ func getArchitectureDetectionPodContainers(
 		devPodContainer.VolumeMounts = append(
 			existingDevPodContainer.VolumeMounts,
 			devPodContainer.VolumeMounts...)
-		devPodContainer.ImagePullPolicy =
-			existingDevPodContainer.ImagePullPolicy
-		devPodContainer.Resources =
-			existingDevPodContainer.Resources
+		devPodContainer.ImagePullPolicy = existingDevPodContainer.ImagePullPolicy
+		devPodContainer.Resources = existingDevPodContainer.Resources
 
 		if devPodContainer.SecurityContext == nil &&
 			existingDevPodContainer.SecurityContext != nil {
-			devPodContainer.SecurityContext =
-				existingDevPodContainer.SecurityContext
+			devPodContainer.SecurityContext = existingDevPodContainer.SecurityContext
 		}
 	}
 	retContainers = append(retContainers, devPodContainer)
