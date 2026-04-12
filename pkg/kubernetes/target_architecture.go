@@ -41,7 +41,7 @@ func (k *KubernetesDriver) ensureNamespace(ctx context.Context) {
 			cmdIO{stdout: buf, stderr: buf},
 		)
 		if err != nil {
-			k.Log.Debugf("Error creating namespace: %v", err)
+			k.Log.Debugf("Error creating namespace: %s%v", buf.String(), err)
 		}
 	}
 }

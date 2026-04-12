@@ -28,11 +28,14 @@ func (k *KubernetesDriver) EnsurePullSecret(
 		return false, nil
 	}
 
-	if err := k.ensureSecretCurrent(ctx, pullSecretName, dockerCredentials, host); err != nil {
+	created, err := k.ensureSecretCurrent(ctx, pullSecretName, dockerCredentials, host)
+	if err != nil {
 		return false, err
 	}
 
-	k.Log.Infof("Pull secret '%s' created", pullSecretName)
+	if created {
+		k.Log.Infof("Pull secret '%s' created", pullSecretName)
+	}
 	return true, nil
 }
 
@@ -41,11 +44,11 @@ func (k *KubernetesDriver) ensureSecretCurrent(
 	pullSecretName string,
 	dockerCredentials *docker.Credentials,
 	host string,
-) error {
+) (bool, error) {
 	if k.secretExists(ctx, pullSecretName) {
 		if !k.shouldRecreateSecret(ctx, dockerCredentials, pullSecretName, host) {
 			k.Log.Debugf("Pull secret '%s' already exists and is up to date", pullSecretName)
-			return nil
+			return false, nil
 		}
 
 		k.Log.Debugf(
@@ -53,11 +56,11 @@ func (k *KubernetesDriver) ensureSecretCurrent(
 			pullSecretName,
 		)
 		if err := k.DeletePullSecret(ctx, pullSecretName); err != nil {
-			return err
+			return false, err
 		}
 	}
 
-	return k.createPullSecret(ctx, pullSecretName, dockerCredentials)
+	return true, k.createPullSecret(ctx, pullSecretName, dockerCredentials)
 }
 
 func (k *KubernetesDriver) ReadSecretContents(
