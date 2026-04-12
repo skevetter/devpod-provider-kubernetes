@@ -86,10 +86,23 @@ func (k *KubernetesDriver) ensurePVC(
 		return true, options, nil
 	}
 
-	if options == nil && containerInfo != nil && containerInfo.Options != nil {
-		options = containerInfo.Options
+	if options == nil {
+		options = resolveOptionsFromPVC(containerInfo)
+	}
+	if options == nil {
+		return false, nil, fmt.Errorf(
+			"workspace '%s' has a PVC but no run options could be resolved",
+			workspaceId,
+		)
 	}
 	return false, options, nil
+}
+
+func resolveOptionsFromPVC(info *DevContainerInfo) *driver.RunOptions {
+	if info != nil && info.Options != nil {
+		return info.Options
+	}
+	return nil
 }
 
 func (k *KubernetesDriver) runContainer(
@@ -120,13 +133,14 @@ func (k *KubernetesDriver) runContainer(
 	if err != nil {
 		return err
 	}
-	pullSecretsCreated, err := k.ensurePullSecrets(ctx, id, options.Image)
-	if err != nil {
+	if err = k.ensurePullSecrets(ctx, id, options.Image); err != nil {
 		return err
 	}
 	pod.Name = id
 	pod.Labels = meta.labels
-	pod.Spec.ServiceAccountName = serviceAccount
+	if serviceAccount != "" {
+		pod.Spec.ServiceAccountName = serviceAccount
+	}
 	pod.Spec.NodeSelector = meta.nodeSelector
 	pod.Spec.InitContainers = initContainers
 	pod.Spec.Containers = getContainers(pod, containerConfig{
@@ -145,7 +159,7 @@ func (k *KubernetesDriver) runContainer(
 
 	affinity := k.setupPodAffinity(ctx, pod, id)
 
-	if pullSecretsCreated {
+	if k.options.KubernetesPullSecretsEnabled == trueStr {
 		pod.Spec.ImagePullSecrets = []corev1.LocalObjectReference{
 			{Name: getPullSecretsName(id)},
 		}
@@ -301,11 +315,12 @@ func (k *KubernetesDriver) ensurePullSecrets(
 	ctx context.Context,
 	id string,
 	image string,
-) (bool, error) {
+) error {
 	if k.options.KubernetesPullSecretsEnabled != trueStr {
-		return false, nil
+		return nil
 	}
-	return k.EnsurePullSecret(ctx, getPullSecretsName(id), image)
+	_, err := k.EnsurePullSecret(ctx, getPullSecretsName(id), image)
+	return err
 }
 
 func (k *KubernetesDriver) setupPodAffinity(
