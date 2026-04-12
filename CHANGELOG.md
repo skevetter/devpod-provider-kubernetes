@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.2...v0.1.3) (2026-04-12)
+
+
+### Bug Fixes
+
+* resolve all golangci-lint violations ([#7](https://github.com/skevetter/devpod-provider-kubernetes/issues/7)) ([3deee89](https://github.com/skevetter/devpod-provider-kubernetes/commit/3deee89d60b61c0ebf2fe530f0e733bc89b8a242))
+
 ## [0.1.2](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.1...v0.1.2) (2026-04-12)
 
 
