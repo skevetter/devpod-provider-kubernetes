@@ -68,9 +68,7 @@ func (k *KubernetesDriver) ensureServiceAccount(
 	err = k.runCommand(
 		ctx,
 		[]string{"create", "-f", "-"},
-		bytes.NewReader(raw),
-		buf,
-		buf,
+		cmdIO{stdin: bytes.NewReader(raw), stdout: buf, stderr: buf},
 	)
 	if err != nil {
 		return fmt.Errorf(
@@ -129,9 +127,7 @@ func (k *KubernetesDriver) ensureRoleBinding(
 	err = k.runCommand(
 		ctx,
 		[]string{"create", "-f", "-"},
-		bytes.NewReader(raw),
-		buf,
-		buf,
+		cmdIO{stdin: bytes.NewReader(raw), stdout: buf, stderr: buf},
 	)
 	if err != nil {
 		return fmt.Errorf(

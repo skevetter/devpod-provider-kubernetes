@@ -37,7 +37,7 @@ func (k *KubernetesDriver) ensureNamespace(ctx context.Context) {
 		err := k.runCommand(
 			ctx,
 			[]string{"create", "ns", k.namespace},
-			nil, buf, buf,
+			cmdIO{stdout: buf, stderr: buf},
 		)
 		if err != nil {
 			k.Log.Debugf("Error creating namespace: %v", err)
@@ -109,9 +109,7 @@ func (k *KubernetesDriver) detectArchitecture(
 	err = k.runCommand(
 		ctx,
 		[]string{"create", "-f", "-"},
-		strings.NewReader(string(podRaw)),
-		stdout,
-		stderr,
+		cmdIO{stdin: strings.NewReader(string(podRaw)), stdout: stdout, stderr: stderr},
 	)
 	if err != nil {
 		return "", fmt.Errorf(
@@ -132,7 +130,7 @@ func (k *KubernetesDriver) detectArchitecture(
 	err = k.runCommand(
 		ctx,
 		[]string{"logs", pod.Name, "-n", k.namespace},
-		os.Stdin, stdout, stderr,
+		cmdIO{stdin: os.Stdin, stdout: stdout, stderr: stderr},
 	)
 	if err != nil {
 		return "", fmt.Errorf(

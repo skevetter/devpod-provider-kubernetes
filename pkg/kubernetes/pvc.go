@@ -25,7 +25,11 @@ func (k *KubernetesDriver) createPersistentVolumeClaim(
 
 	k.Log.Infof("Create Persistent Volume Claim '%s'", id)
 	buf := &bytes.Buffer{}
-	err = k.runCommand(ctx, []string{"create", "-f", "-"}, strings.NewReader(pvcString), buf, buf)
+	err = k.runCommand(
+		ctx,
+		[]string{"create", "-f", "-"},
+		cmdIO{stdin: strings.NewReader(pvcString), stdout: buf, stderr: buf},
+	)
 	if err != nil {
 		return fmt.Errorf("create pvc: %s: %w", buf.String(), err)
 	}

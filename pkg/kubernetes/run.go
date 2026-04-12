@@ -51,7 +51,11 @@ func (k *KubernetesDriver) RunDevContainer(
 	if k.namespace != "" && k.options.CreateNamespace == "true" {
 		k.Log.Debugf("Create namespace '%s'", k.namespace)
 		buf := &bytes.Buffer{}
-		err := k.runCommand(ctx, []string{"create", "ns", k.namespace}, nil, buf, buf)
+		err := k.runCommand(
+			ctx,
+			[]string{"create", "ns", k.namespace},
+			cmdIO{stdout: buf, stderr: buf},
+		)
 		if err != nil {
 			k.Log.Debugf("Error creating namespace: %s%v", buf.String(), err)
 		}
@@ -250,9 +254,7 @@ func (k *KubernetesDriver) runContainer(
 	err = k.runCommand(
 		ctx,
 		[]string{"get", "pods", "-o=name", "-l", DevPodWorkspaceLabel + "=" + id},
-		nil,
-		stdout,
-		stderr,
+		cmdIO{stdout: stdout, stderr: stderr},
 	)
 	if err != nil {
 		k.Log.Debugf(
@@ -372,9 +374,7 @@ func (k *KubernetesDriver) runPod(
 	err = k.runCommand(
 		ctx,
 		[]string{"create", "-f", "-"},
-		strings.NewReader(string(podRaw)),
-		buf,
-		buf,
+		cmdIO{stdin: strings.NewReader(string(podRaw)), stdout: buf, stderr: buf},
 	)
 	if err != nil {
 		return fmt.Errorf("create pod: %s: %w", buf.String(), err)
@@ -392,9 +392,7 @@ func (k *KubernetesDriver) runPod(
 		err := k.runCommand(
 			ctx,
 			[]string{"delete", "pods", "--force", "-l", DevPodWorkspaceLabel + "=" + id},
-			nil,
-			buf,
-			buf,
+			cmdIO{stdout: buf, stderr: buf},
 		)
 		if err != nil {
 			return fmt.Errorf("cleanup jobs: %s: %w", buf.String(), err)

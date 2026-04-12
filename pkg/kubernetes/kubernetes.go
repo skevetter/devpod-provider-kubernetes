@@ -137,7 +137,7 @@ func (k *KubernetesDriver) CommandDevContainer(
 		args = append(args, "--", "sh", "-c", command)
 	}
 
-	return k.runCommand(ctx, args, stdin, stdout, stderr)
+	return k.runCommand(ctx, args, cmdIO{stdin: stdin, stdout: stdout, stderr: stderr})
 }
 
 func (k *KubernetesDriver) GetDevContainerLogs(
@@ -150,7 +150,7 @@ func (k *KubernetesDriver) GetDevContainerLogs(
 
 	args := []string{"logs", "pods/" + workspaceID, "-c", "devpod"}
 
-	return k.runCommand(ctx, args, nil, stdout, stderr)
+	return k.runCommand(ctx, args, cmdIO{stdout: stdout, stderr: stderr})
 }
 
 func (k *KubernetesDriver) getDevContainerPvc(
@@ -208,30 +208,30 @@ func (k *KubernetesDriver) buildCmd(ctx context.Context, args []string) *exec.Cm
 	return exec.CommandContext(ctx, k.kubectl, newArgs...)
 }
 
-//nolint:revive // thin wrapper, grouping args would add complexity
+type cmdIO struct {
+	stdin  io.Reader
+	stdout io.Writer
+	stderr io.Writer
+}
+
 func (k *KubernetesDriver) runCommand(
 	ctx context.Context,
 	args []string,
-	stdin io.Reader,
-	stdout io.Writer,
-	stderr io.Writer,
+	io cmdIO,
 ) error {
-	return k.runCommandWithDir(ctx, "", args, stdin, stdout, stderr)
+	return k.runCommandInDir(ctx, "", args, io)
 }
 
-//nolint:revive // thin wrapper, grouping args would add complexity
-func (k *KubernetesDriver) runCommandWithDir(
+func (k *KubernetesDriver) runCommandInDir(
 	ctx context.Context,
 	dir string,
 	args []string,
-	stdin io.Reader,
-	stdout io.Writer,
-	stderr io.Writer,
+	io cmdIO,
 ) error {
 	cmd := k.buildCmd(ctx, args)
 	cmd.Dir = dir
-	cmd.Stdin = stdin
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
+	cmd.Stdin = io.stdin
+	cmd.Stdout = io.stdout
+	cmd.Stderr = io.stderr
 	return cmd.Run()
 }
