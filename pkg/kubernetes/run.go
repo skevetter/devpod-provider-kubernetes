@@ -11,7 +11,6 @@ import (
 
 	"github.com/loft-sh/devpod/pkg/devcontainer/config"
 	"github.com/loft-sh/devpod/pkg/driver"
-	"github.com/pkg/errors"
 	optionspkg "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -68,7 +67,7 @@ func (k *KubernetesDriver) RunDevContainer(
 	if pvc == nil {
 		if options == nil {
 			return fmt.Errorf(
-				"No options provided and no persistent volume claim found for workspace '%s'",
+				"no options provided and no persistent volume claim found for workspace '%s'",
 				workspaceId,
 			)
 		}
@@ -114,7 +113,8 @@ func (k *KubernetesDriver) runContainer(
 			k.Log.Warn("Relative filepath: %v", err)
 		} else if strings.HasPrefix(rel, "..") {
 			k.Log.Warnf(
-				"Workspace volume mount needs to be the same as the workspace mount or a parent, skipping option. WorkspaceVolumeMount: %s, MountTarget: %s",
+				"Workspace volume mount needs to be the same as the workspace mount or a parent, "+
+					"skipping option. WorkspaceVolumeMount: %s, MountTarget: %s",
 				k.options.WorkspaceVolumeMount,
 				mount.Target,
 			)
@@ -143,10 +143,7 @@ func (k *KubernetesDriver) runContainer(
 	}
 
 	// get init containers
-	initContainers, err := k.getInitContainers(options, pod, initialize)
-	if err != nil {
-		return errors.Wrap(err, "build init container")
-	}
+	initContainers := k.getInitContainers(options, pod, initialize)
 
 	// loop over volume mounts
 	volumeMounts := []corev1.VolumeMount{getVolumeMount(0, mount)}
@@ -231,19 +228,18 @@ func (k *KubernetesDriver) runContainer(
 	pod.Spec.ServiceAccountName = serviceAccount
 	pod.Spec.NodeSelector = nodeSelector
 	pod.Spec.InitContainers = initContainers
-	pod.Spec.Containers = getContainers(
-		pod,
-		options.Image,
-		options.Entrypoint,
-		options.Cmd,
-		envVars,
-		volumeMounts,
-		capabilities,
-		resources,
-		options.Privileged,
-		k.options.DangerouslyOverrideImage,
-		k.options.StrictSecurity,
-	)
+	pod.Spec.Containers = getContainers(pod, containerConfig{
+		imageName:      options.Image,
+		entrypoint:     options.Entrypoint,
+		args:           options.Cmd,
+		envVars:        envVars,
+		volumeMounts:   volumeMounts,
+		capabilities:   capabilities,
+		resources:      resources,
+		privileged:     options.Privileged,
+		overrideImage:  k.options.DangerouslyOverrideImage,
+		strictSecurity: k.options.StrictSecurity,
+	})
 	pod.Spec.Volumes = getVolumes(pod, id)
 
 	affinity := false
@@ -309,7 +305,7 @@ func (k *KubernetesDriver) runContainer(
 	// try to get existing pod
 	existingPod, err := k.getPod(ctx, id)
 	if err != nil {
-		return errors.Wrapf(err, "get pod: %s", id)
+		return fmt.Errorf("get pod: %s: %w", id, err)
 	}
 
 	if existingPod != nil {
@@ -332,7 +328,7 @@ func (k *KubernetesDriver) runContainer(
 		k.Log.Debug("Provider options changed")
 		err = k.waitPodDeleted(ctx, id)
 		if err != nil {
-			return errors.Wrapf(err, "stop devcontainer: %s", id)
+			return fmt.Errorf("stop devcontainer: %s: %w", id, err)
 		}
 	}
 
@@ -355,7 +351,7 @@ func (k *KubernetesDriver) runPod(
 	// set configuration before creating the pod
 	lastAppliedConfigRaw, err := json.Marshal(k.options)
 	if err != nil {
-		return errors.Wrap(err, "marshal last applied config")
+		return fmt.Errorf("marshal last applied config: %w", err)
 	}
 
 	if pod.Annotations == nil {
@@ -381,7 +377,7 @@ func (k *KubernetesDriver) runPod(
 		buf,
 	)
 	if err != nil {
-		return errors.Wrapf(err, "create pod: %s", buf.String())
+		return fmt.Errorf("create pod: %s: %w", buf.String(), err)
 	}
 
 	// wait for pod running
@@ -401,48 +397,52 @@ func (k *KubernetesDriver) runPod(
 			buf,
 		)
 		if err != nil {
-			return errors.Wrapf(err, "cleanup jobs: %s", buf.String())
+			return fmt.Errorf("cleanup jobs: %s: %w", buf.String(), err)
 		}
 	}
 
 	return nil
 }
 
+type containerConfig struct {
+	imageName      string
+	entrypoint     string
+	args           []string
+	envVars        []corev1.EnvVar
+	volumeMounts   []corev1.VolumeMount
+	capabilities   *corev1.Capabilities
+	resources      corev1.ResourceRequirements
+	privileged     *bool
+	overrideImage  string
+	strictSecurity bool
+}
+
 func getContainers(
 	pod *corev1.Pod,
-	imageName,
-	entrypoint string,
-	args []string,
-	envVars []corev1.EnvVar,
-	volumeMounts []corev1.VolumeMount,
-	capabilities *corev1.Capabilities,
-	resources corev1.ResourceRequirements,
-	privileged *bool,
-	overrideImage string,
-	strictSecurity bool,
+	cfg containerConfig,
 ) []corev1.Container {
 	devPodContainer := corev1.Container{
 		Name:         DevContainerName,
-		Image:        imageName,
-		Command:      []string{entrypoint},
-		Args:         args,
-		Env:          envVars,
-		Resources:    resources,
-		VolumeMounts: volumeMounts,
+		Image:        cfg.imageName,
+		Command:      []string{cfg.entrypoint},
+		Args:         cfg.args,
+		Env:          cfg.envVars,
+		Resources:    cfg.resources,
+		VolumeMounts: cfg.volumeMounts,
 		SecurityContext: &corev1.SecurityContext{
-			Capabilities: capabilities,
-			Privileged:   privileged,
+			Capabilities: cfg.capabilities,
+			Privileged:   cfg.privileged,
 			RunAsUser:    &[]int64{0}[0],
 			RunAsGroup:   &[]int64{0}[0],
 			RunAsNonRoot: &[]bool{false}[0],
 		},
 	}
 
-	if overrideImage != "" {
-		devPodContainer.Image = overrideImage
+	if cfg.overrideImage != "" {
+		devPodContainer.Image = cfg.overrideImage
 	}
 
-	if strictSecurity {
+	if cfg.strictSecurity {
 		devPodContainer.SecurityContext = nil
 	}
 

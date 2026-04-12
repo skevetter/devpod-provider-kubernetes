@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/loft-sh/devpod/pkg/driver"
-	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,7 +27,7 @@ func (k *KubernetesDriver) createPersistentVolumeClaim(
 	buf := &bytes.Buffer{}
 	err = k.runCommand(ctx, []string{"create", "-f", "-"}, strings.NewReader(pvcString), buf, buf)
 	if err != nil {
-		return errors.Wrapf(err, "create pvc: %s", buf.String())
+		return fmt.Errorf("create pvc: %s: %w", buf.String(), err)
 	}
 
 	return nil
@@ -48,7 +48,7 @@ func (k *KubernetesDriver) buildPersistentVolumeClaim(
 	}
 	quantity, err := resource.ParseQuantity(size)
 	if err != nil {
-		return "", errors.Wrapf(err, "parse persistent volume size '%s'", size)
+		return "", fmt.Errorf("parse persistent volume size '%s': %w", size, err)
 	}
 
 	var storageClassName *string

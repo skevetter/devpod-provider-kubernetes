@@ -40,23 +40,3 @@ linters:
           arguments: [4]
         - name: function-result-limit
           arguments: [3]
-  exclusions:
-    rules:
-      # Existing code violations - to be addressed incrementally
-      - path: pkg/kubernetes/
-        linters:
-          - cyclop
-          - funcorder
-          - funlen
-          - lll
-          - nestif
-          - revive
-          - unparam
-      - path: pkg/kubernetes/run.go
-        linters:
-          - staticcheck
-        text: "ST1005"
-      - path: pkg/kubernetes/wait.go
-        linters:
-          - staticcheck
-        text: "QF1012"

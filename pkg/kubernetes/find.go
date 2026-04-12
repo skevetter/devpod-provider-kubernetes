@@ -25,7 +25,8 @@ func (k *KubernetesDriver) FindDevContainer(
 	if err != nil {
 		k.Log.Infof("Error finding pod: %v", err)
 		k.Log.Warn(
-			"If the pod does not come up automatically it is stuck in an error state. Recreate the workspace to recover from this",
+			"If the pod does not come up automatically it is stuck in an error state. " +
+				"Recreate the workspace to recover from this",
 		)
 		pod = nil
 	}

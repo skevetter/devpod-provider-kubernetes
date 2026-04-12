@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,7 +10,6 @@ import (
 	"github.com/docker/cli/cli/config/configfile"
 	"github.com/docker/cli/cli/config/types"
 	"github.com/docker/docker/pkg/homedir"
-	perrors "github.com/pkg/errors"
 )
 
 const (
@@ -28,7 +28,7 @@ func GetAuthConfig(host string) (*Credentials, error) {
 	}
 	ac, err := dockerConfig.GetAuthConfig(host)
 	if err != nil {
-		return nil, perrors.Wrapf(err, "get auth config for host %s", host)
+		return nil, fmt.Errorf("get auth config for host %s: %w", host, err)
 	}
 
 	return prepareCredentials(host, ac), nil

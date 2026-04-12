@@ -20,39 +20,60 @@ func (k *KubernetesDriver) TargetArchitecture(
 ) (string, error) {
 	workspaceId = getID(workspaceId)
 
-	// namespace
+	k.ensureNamespace(ctx)
+
+	pod, err := k.buildArchDetectionPod(workspaceId)
+	if err != nil {
+		return "", err
+	}
+
+	return k.detectArchitecture(ctx, pod)
+}
+
+func (k *KubernetesDriver) ensureNamespace(ctx context.Context) {
 	if k.namespace != "" && k.options.CreateNamespace == "true" {
 		k.Log.Debugf("Create namespace '%s'", k.namespace)
 		buf := &bytes.Buffer{}
-		err := k.runCommand(ctx, []string{"create", "ns", k.namespace}, nil, buf, buf)
+		err := k.runCommand(
+			ctx,
+			[]string{"create", "ns", k.namespace},
+			nil, buf, buf,
+		)
 		if err != nil {
 			k.Log.Debugf("Error creating namespace: %v", err)
 		}
 	}
+}
 
+func (k *KubernetesDriver) buildArchDetectionPod(
+	workspaceId string,
+) (*corev1.Pod, error) {
 	pod := &corev1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Pod",
 			APIVersion: corev1.SchemeGroupVersion.String(),
 		},
 	}
-	// parse pod manifest template if provided
 	if len(k.options.ArchDetectionPodManifestTemplate) > 0 {
 		k.Log.Debugf(
 			"trying to get arch detection pod template manifest from %s",
 			k.options.ArchDetectionPodManifestTemplate,
 		)
-		p, err := getPodTemplate(k.options.ArchDetectionPodManifestTemplate)
+		p, err := getPodTemplate(
+			k.options.ArchDetectionPodManifestTemplate,
+		)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		pod = p
 	}
-	podName := encoding.SafeConcatNameMax([]string{"devpod", workspaceId, random.String(6)}, 32)
+
+	podName := encoding.SafeConcatNameMax(
+		[]string{"devpod", workspaceId, random.String(6)}, 32,
+	)
 	pod.Namespace = k.namespace
 	pod.Name = podName
 
-	// configure labels
 	labels := map[string]string{}
 	if pod.Labels == nil {
 		pod.Labels = map[string]string{}
@@ -61,8 +82,8 @@ func (k *KubernetesDriver) TargetArchitecture(
 		labels[k] = label
 	}
 	labels[DevPodWorkspaceLabel] = workspaceId
-
 	pod.Labels = labels
+
 	pod.Spec.RestartPolicy = corev1.RestartPolicyNever
 	pod.Spec.Containers = getArchitectureDetectionPodContainers(
 		pod,
@@ -70,12 +91,18 @@ func (k *KubernetesDriver) TargetArchitecture(
 		[]string{"sh", "-c", "uname -m && tail -f /dev/null"},
 	)
 
+	return pod, nil
+}
+
+func (k *KubernetesDriver) detectArchitecture(
+	ctx context.Context,
+	pod *corev1.Pod,
+) (string, error) {
 	podRaw, err := json.Marshal(pod)
 	if err != nil {
 		return "", err
 	}
 
-	// get target architecture
 	k.Log.Infof("Find out cluster architecture...")
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
@@ -89,37 +116,34 @@ func (k *KubernetesDriver) TargetArchitecture(
 	if err != nil {
 		return "", fmt.Errorf(
 			"find out cluster architecture: %s %s %w",
-			stdout.String(),
-			stderr.String(),
-			err,
+			stdout.String(), stderr.String(), err,
 		)
 	}
 
-	// wait for pod running
 	k.Log.Infof("Waiting for cluster architecture job to come up...")
-	_, err = k.waitPodRunning(ctx, podName)
+	_, err = k.waitPodRunning(ctx, pod.Name)
 	if err != nil {
 		return "", fmt.Errorf(
 			"find out cluster architecture: %s %s %w",
-			stdout.String(),
-			stderr.String(),
-			err,
+			stdout.String(), stderr.String(), err,
 		)
 	}
 
-	// capture uname output
-	err = k.runCommand(ctx, []string{"logs", podName, "-n", k.namespace}, os.Stdin, stdout, stderr)
+	err = k.runCommand(
+		ctx,
+		[]string{"logs", pod.Name, "-n", k.namespace},
+		os.Stdin, stdout, stderr,
+	)
 	if err != nil {
 		return "", fmt.Errorf(
 			"find out cluster architecture: %s %s %w",
-			stdout.String(),
-			stderr.String(),
-			err,
+			stdout.String(), stderr.String(), err,
 		)
 	}
 
 	unameOutput := stdout.String()
-	if strings.Contains(unameOutput, "arm") || strings.Contains(unameOutput, "aarch") {
+	if strings.Contains(unameOutput, "arm") ||
+		strings.Contains(unameOutput, "aarch") {
 		return "arm64", nil
 	}
 
@@ -159,18 +183,23 @@ func getArchitectureDetectionPodContainers(
 	}
 
 	if existingDevPodContainer != nil {
-		devPodContainer.Env = append(existingDevPodContainer.Env, devPodContainer.Env...)
+		devPodContainer.Env = append(
+			existingDevPodContainer.Env, devPodContainer.Env...,
+		)
 		devPodContainer.EnvFrom = existingDevPodContainer.EnvFrom
 		devPodContainer.Ports = existingDevPodContainer.Ports
 		devPodContainer.VolumeMounts = append(
 			existingDevPodContainer.VolumeMounts,
 			devPodContainer.VolumeMounts...)
-		devPodContainer.ImagePullPolicy = existingDevPodContainer.ImagePullPolicy
-		devPodContainer.Resources = existingDevPodContainer.Resources
+		devPodContainer.ImagePullPolicy =
+			existingDevPodContainer.ImagePullPolicy
+		devPodContainer.Resources =
+			existingDevPodContainer.Resources
 
 		if devPodContainer.SecurityContext == nil &&
 			existingDevPodContainer.SecurityContext != nil {
-			devPodContainer.SecurityContext = existingDevPodContainer.SecurityContext
+			devPodContainer.SecurityContext =
+				existingDevPodContainer.SecurityContext
 		}
 	}
 	retContainers = append(retContainers, devPodContainer)

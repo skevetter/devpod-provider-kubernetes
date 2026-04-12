@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/loft-sh/devpod/pkg/command"
-	perrors "github.com/pkg/errors"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/throttledlogger"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -19,7 +18,7 @@ func (k *KubernetesDriver) waitPodRunning(ctx context.Context, id string) (*core
 
 	timeoutDuration, err := time.ParseDuration(k.options.PodTimeout)
 	if err != nil {
-		return nil, perrors.Wrap(err, "parse pod timeout")
+		return nil, fmt.Errorf("parse pod timeout: %w", err)
 	}
 
 	started := time.Now()
@@ -45,32 +44,13 @@ func (k *KubernetesDriver) waitPodRunning(ctx context.Context, id string) (*core
 			}
 
 			// Let's print all conditions that are false to help people troubleshoot infra issues
-			var condMsg strings.Builder
-			if time.Since(started) > 45*time.Second { // start printing conditions after a delay
-				for _, cond := range pod.Status.Conditions {
-					if cond.Status == corev1.ConditionFalse {
-						condMsg.WriteString(
-							fmt.Sprintf("Condition \"%s\" is %s\n", cond.Type, cond.Status),
-						)
-						if cond.Reason != "" {
-							condMsg.WriteString(
-								fmt.Sprintf("%s Reason: %s\n", cond.Type, cond.Reason),
-							)
-						}
-						if cond.Message != "" {
-							condMsg.WriteString(
-								fmt.Sprintf("%s Message: %s\n", cond.Type, cond.Message),
-							)
-						}
-					}
-				}
-			}
+			condMsg := buildConditionMessage(started, pod)
 
 			// check pod status
 			if len(pod.Status.ContainerStatuses) < len(pod.Spec.Containers) {
 				msg := fmt.Sprintf("Waiting, since pod '%s' is starting", id)
-				if condMsg.String() != "" {
-					msg += fmt.Sprintf("\n%s", strings.TrimSpace(condMsg.String()))
+				if condMsg != "" {
+					msg += fmt.Sprintf("\n%s", strings.TrimSpace(condMsg))
 				}
 				throttledLogger.Infof("%s", msg)
 				return false, nil
@@ -215,7 +195,7 @@ func (k *KubernetesDriver) getPod(ctx context.Context, id string) (*corev1.Pod, 
 	pod := &corev1.Pod{}
 	err = json.Unmarshal(out, pod)
 	if err != nil {
-		return nil, perrors.Wrap(err, "unmarshal pod")
+		return nil, fmt.Errorf("unmarshal pod: %w", err)
 	}
 
 	return pod, nil
@@ -233,6 +213,40 @@ func getContainer(containers []corev1.Container, name string) (*corev1.Container
 
 func restartableInitContainer(p *corev1.ContainerRestartPolicy) bool {
 	return p != nil && *p == corev1.ContainerRestartPolicyAlways
+}
+
+func buildConditionMessage(
+	started time.Time,
+	pod *corev1.Pod,
+) string {
+	if time.Since(started) <= 45*time.Second {
+		return ""
+	}
+
+	var condMsg strings.Builder
+	for _, cond := range pod.Status.Conditions {
+		if cond.Status != corev1.ConditionFalse {
+			continue
+		}
+		fmt.Fprintf(
+			&condMsg, "Condition %q is %s\n",
+			cond.Type, cond.Status,
+		)
+		if cond.Reason != "" {
+			fmt.Fprintf(
+				&condMsg, "%s Reason: %s\n",
+				cond.Type, cond.Reason,
+			)
+		}
+		if cond.Message != "" {
+			fmt.Fprintf(
+				&condMsg, "%s Message: %s\n",
+				cond.Type, cond.Message,
+			)
+		}
+	}
+
+	return condMsg.String()
 }
 
 func (k *KubernetesDriver) waitPodDeleted(ctx context.Context, id string) error {

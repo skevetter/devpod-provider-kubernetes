@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	perrors "github.com/pkg/errors"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/docker"
 	k8sv1 "k8s.io/api/core/v1"
 )
@@ -68,13 +67,13 @@ func (k *KubernetesDriver) ReadSecretContents(
 
 	out, err := k.buildCmd(ctx, args).CombinedOutput()
 	if err != nil {
-		return "", perrors.Wrapf(err, "delete pull secret: %s", string(out))
+		return "", fmt.Errorf("delete pull secret: %s: %w", string(out), err)
 	}
 
 	var secret k8sv1.Secret
 	err = json.Unmarshal(out, &secret)
 	if err != nil {
-		return "", perrors.Wrap(err, "unmarshal secret")
+		return "", fmt.Errorf("unmarshal secret: %w", err)
 	}
 
 	return DecodeAuthTokenFromPullSecret(secret, host)
@@ -96,7 +95,7 @@ func (k *KubernetesDriver) DeletePullSecret(
 
 	out, err := k.buildCmd(ctx, args).CombinedOutput()
 	if err != nil {
-		return perrors.Wrapf(err, "delete pull secret: %s", string(out))
+		return fmt.Errorf("delete pull secret: %s: %w", string(out), err)
 	}
 
 	return nil
@@ -141,7 +140,7 @@ func (k *KubernetesDriver) createPullSecret(
 
 	encodedSecretData, err := PreparePullSecretData(dockerCredentials.ServerURL, authToken, email)
 	if err != nil {
-		return perrors.Wrap(err, "prepare pull secret data")
+		return fmt.Errorf("prepare pull secret data: %w", err)
 	}
 
 	args := []string{
@@ -155,7 +154,7 @@ func (k *KubernetesDriver) createPullSecret(
 
 	out, err := k.buildCmd(ctx, args).CombinedOutput()
 	if err != nil {
-		return perrors.Wrapf(err, "create pull secret: %s", string(out))
+		return fmt.Errorf("create pull secret: %s: %w", string(out), err)
 	}
 
 	return nil
