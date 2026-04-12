@@ -47,6 +47,7 @@ linters:
         linters:
           - cyclop
           - funcorder
+          - funlen
           - lll
           - nestif
           - revive
