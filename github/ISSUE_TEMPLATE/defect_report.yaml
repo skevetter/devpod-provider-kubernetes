@@ -48,7 +48,7 @@ body:
     id: podman_info
     attributes:
       label: --debug output
-      description: `devpod --debug daemon-logs`
+      description: "devpod --debug daemon-logs"
       value: In case you use a Machine, provide operating system and its version and the architecture you are running.
       render: yaml
     validations:
