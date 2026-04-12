@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.5...v0.1.6) (2026-04-12)
+
+
+### Bug Fixes
+
+* resolve yamllint errors in tests.yaml and defect_report.yaml ([#18](https://github.com/skevetter/devpod-provider-kubernetes/issues/18)) ([d21b328](https://github.com/skevetter/devpod-provider-kubernetes/commit/d21b3280e92021f145cdbe8d84b6351e6d5f8481))
+
 ## [0.1.5](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.4...v0.1.5) (2026-04-12)
 
 
