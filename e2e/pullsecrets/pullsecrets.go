@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/skevetter/log"
 	. "github.com/onsi/ginkgo/v2" //nolint:staticcheck // ginkgo/gomega convention
 	. "github.com/onsi/gomega"    //nolint:staticcheck // ginkgo/gomega convention
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
 	options2 "github.com/skevetter/devpod-provider-kubernetes/pkg/options"
+	"github.com/skevetter/log"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s "k8s.io/client-go/kubernetes"

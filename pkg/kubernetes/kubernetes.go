@@ -8,10 +8,10 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	"github.com/skevetter/devpod/pkg/command"
 	"github.com/skevetter/devpod/pkg/driver"
 	"github.com/skevetter/log"
-	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
 	corev1 "k8s.io/api/core/v1"
 )
 

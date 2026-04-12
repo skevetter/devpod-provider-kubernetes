@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/skevetter/log"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/kubernetes"
 	"github.com/skevetter/devpod-provider-kubernetes/pkg/options"
+	"github.com/skevetter/log"
 	"github.com/spf13/cobra"
 )
 

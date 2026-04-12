@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/exec"
 
-	log2 "github.com/skevetter/log"
 	"github.com/sirupsen/logrus"
+	log2 "github.com/skevetter/log"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 )
