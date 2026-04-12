@@ -59,6 +59,11 @@ func (k *KubernetesDriver) checkPodProgress(
 
 	condMsg := buildConditionMessage(started, pod)
 
+	ready, err := checkInitContainerStatuses(pod, id, throttledLogger)
+	if !ready || err != nil {
+		return ready, err
+	}
+
 	if len(pod.Status.ContainerStatuses) < len(pod.Spec.Containers) {
 		msg := fmt.Sprintf("Waiting, since pod '%s' is starting", id)
 		if condMsg != "" {
@@ -66,11 +71,6 @@ func (k *KubernetesDriver) checkPodProgress(
 		}
 		throttledLogger.Infof("%s", msg)
 		return false, nil
-	}
-
-	ready, err := checkInitContainerStatuses(pod, id, throttledLogger)
-	if !ready || err != nil {
-		return ready, err
 	}
 
 	return k.checkContainerStatuses(ctx, pod, id, throttledLogger)

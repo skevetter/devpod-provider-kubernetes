@@ -46,7 +46,6 @@ func (k *KubernetesDriver) buildPersistentVolumeClaim(
 	if err != nil {
 		return "", err
 	}
-
 	size := "10Gi"
 	if k.options.DiskSize != "" {
 		size = k.options.DiskSize
@@ -55,13 +54,14 @@ func (k *KubernetesDriver) buildPersistentVolumeClaim(
 	if err != nil {
 		return "", fmt.Errorf("parse persistent volume size '%s': %w", size, err)
 	}
-
 	var storageClassName *string
 	if k.options.StorageClass != "" {
 		storageClassName = &k.options.StorageClass
 	}
-	accessMode := parseAccessMode(k.options.PvcAccessMode)
-
+	accessMode, err := parseAccessMode(k.options.PvcAccessMode)
+	if err != nil {
+		return "", err
+	}
 	labels := map[string]string{DevPodWorkspaceUIDLabel: options.UID}
 	maps.Copy(labels, ExtraDevPodLabels)
 
@@ -116,15 +116,20 @@ func (k *KubernetesDriver) getDevContainerInformation(
 	return string(containerInfo), nil
 }
 
-func parseAccessMode(mode string) []corev1.PersistentVolumeAccessMode {
+func parseAccessMode(mode string) ([]corev1.PersistentVolumeAccessMode, error) {
 	switch mode {
+	case "", "RWO":
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce}, nil
 	case "ROX":
-		return []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany}
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany}, nil
 	case "RWX":
-		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany}
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany}, nil
 	case "RWOP":
-		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOncePod}
+		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOncePod}, nil
 	default:
-		return []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce}
+		return nil, fmt.Errorf(
+			"unsupported PVC access mode %q, valid values: RWO, ROX, RWX, RWOP",
+			mode,
+		)
 	}
 }
