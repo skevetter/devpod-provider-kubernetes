@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.6...v0.1.7) (2026-04-19)
+
+
+### Bug Fixes
+
+* **deps:** update kubernetes monorepo to v0.35.4 ([#22](https://github.com/skevetter/devpod-provider-kubernetes/issues/22)) ([42a6a1a](https://github.com/skevetter/devpod-provider-kubernetes/commit/42a6a1a9006df577f950d3ad9963d6e32bcb611e))
+
 ## [0.1.6](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.5...v0.1.6) (2026-04-12)
 
 
