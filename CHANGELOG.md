@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.8...v0.1.9) (2026-04-19)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/skevetter/devpod to v0.22.1 ([#26](https://github.com/skevetter/devpod-provider-kubernetes/issues/26)) ([f91afc7](https://github.com/skevetter/devpod-provider-kubernetes/commit/f91afc7d14c289398c67383f1a9e8258317d8a39))
+
 ## [0.1.8](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.7...v0.1.8) (2026-04-19)
 
 
