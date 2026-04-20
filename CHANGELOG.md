@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.10](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.9...v0.1.10) (2026-04-20)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/docker/cli to v29.4.1+incompatible ([#28](https://github.com/skevetter/devpod-provider-kubernetes/issues/28)) ([10990cf](https://github.com/skevetter/devpod-provider-kubernetes/commit/10990cfa876375432dcc2b0a95104642a385f9ad))
+
 ## [0.1.9](https://github.com/skevetter/devpod-provider-kubernetes/compare/v0.1.8...v0.1.9) (2026-04-19)
 
 
